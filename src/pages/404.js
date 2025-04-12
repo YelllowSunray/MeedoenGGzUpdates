@@ -1,4 +1,4 @@
-export default function NotFound() {
+export default function Custom404() {
   return (
     <div style={{ textAlign: 'center', padding: '50px 20px' }}>
       <h1>Pagina niet gevonden</h1>
