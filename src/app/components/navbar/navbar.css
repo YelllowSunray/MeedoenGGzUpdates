@@ -1,11 +1,12 @@
 /* src/app/components/navbar/navbar.css */
 .navbar {
-    background-color: #fa9cec; /* Change navbar color to ED1651 */
+    background-color: #40E0D0; /* Changed to turquoise */
     overflow: hidden;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0px; /* Optional: Add some padding */
+    font-family: var(--font-cabin), sans-serif;
 }
 
 .site-name {
@@ -15,6 +16,7 @@
     padding: 2px 8px; /* Reduced padding for site name */
     margin: 0; /* Remove any margin */
     text-decoration: none; /* Remove underline */
+    font-family: var(--font-cabin), sans-serif;
 }
 
 .navbar-list {
@@ -23,6 +25,7 @@
     padding: 0;
     display: flex; /* Use flexbox for layout */
     justify-content: flex-end; /* Align items from the right */
+    font-family: var(--font-cabin), sans-serif;
 }
 
 .navbar-item {
@@ -30,7 +33,7 @@
     text-align: center;
     padding: 2px 8px; /* Reduced padding for navbar items */
     text-decoration: none; /* Remove underline */
-    font-family: inherit; /* Use the inherited Cabin font */
+    font-family: var(--font-cabin), sans-serif;
     font-size: 1.3rem; /* Font size for navbar items */
     font-weight: bold; /* Make navbar items bold */
     margin: 0; /* Remove any margin */
@@ -40,8 +43,9 @@
 .navbar-item a {
     text-decoration: none;
     color: white;
+    font-family: var(--font-cabin), sans-serif;
 }
 
 .navbar-item:hover {
-    background-color: #3e8e41; /* Darker green on hover */
+    background-color: #30C0B0; /* Darker turquoise on hover */
 }

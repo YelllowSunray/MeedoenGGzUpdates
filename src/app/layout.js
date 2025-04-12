@@ -2,6 +2,7 @@ import { CssBaseline } from '@mui/material';
 import Navbar from "./components/navbar/navbar";
 import { Inter, Cabin } from 'next/font/google';
 import './globals.css';
+import ScrollRestorer from './components/ScrollRestorer';
 
 // Initialize the Cabin font
 const cabin = Cabin({ 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
     <html lang="nl" className={cabin.variable}>
       <body className={cabin.className}>
         <CssBaseline />
+        <ScrollRestorer />
         <Navbar />
         {children}
       </body>

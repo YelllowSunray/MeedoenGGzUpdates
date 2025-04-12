@@ -22,5 +22,9 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-cabin), Helvetica, sans-serif;
+  font-family: var(--font-cabin), sans-serif;
+}
+
+* {
+  font-family: var(--font-cabin), sans-serif;
 }

@@ -11,10 +11,13 @@ const fuseOptions = {
     'Address',
     'organisatie'
   ],
-  threshold: 0.4, // Adjust for fuzziness (0 = exact match, 1 = very loose)
+  threshold: 0.6, // Increased threshold for more flexible matching
   includeScore: true,
   ignoreLocation: true,
-  minMatchCharLength: 2
+  minMatchCharLength: 2,
+  ignoreFieldNorm: true, // Don't weight shorter fields more heavily
+  useExtendedSearch: true, // Enable fuzzy search
+  findAllMatches: true // Find all matches, not just the best one
 };
 
 export function searchActivities(query, data) {
@@ -54,22 +57,159 @@ export function filterActivities(filters, data) {
       }
       return false;
     };
+
+    // Helper function to check activity type
+    const checkActivityType = (item, type) => {
+      if (!type) return true; // No filter applied
+      
+      const activityTypeFields = ['Activity type', 'What', 'Wat', 'Activiteit'];
+      const itemType = item[activityTypeFields.find(field => item[field]) || ''];
+      const tags = item['Tags'] || '';
+      
+      if (!itemType && !tags) return false;
+      
+      // Map activity types to their corresponding filter values
+      const typeMappings = {
+        'sport': ['sport', 'voetbal', 'tennis', 'zwemmen', 'hardlopen', 'koersbal', 'darten'],
+        'ontmoeting': ['ontmoeting', 'ontmoeten', 'sociaal', 'huiskamer', 'koffie', 'thee', 'maatje', 'sociaal isolement'],
+        'spelletjes': ['spelletjes', 'kaart', 'sjoelen', 'koersbal', 'darten', 'spel'],
+        'wandelen': ['wandelen', 'wandeling', 'lopen'],
+        'eten': ['eten', 'koken', 'bakken', 'culinair', 'maaltijd', 'lunch'],
+        'creatief': ['creatief', 'schilderen', 'tekenen', 'knutselen', 'handwerken']
+      };
+      
+      const matchingTypes = typeMappings[type] || [];
+      
+      // Check both the activity type and tags
+      const itemTypeLower = itemType ? itemType.toLowerCase() : '';
+      const tagsLower = tags.toLowerCase();
+      
+      return matchingTypes.some(t => 
+        itemTypeLower.includes(t) || 
+        tagsLower.includes(t)
+      );
+    };
     
     return (
       fieldEquals(['Shiva Categorie', 'Category', 'Categorie', 'Unnamed: 1'], filters.category) &&
       fieldContains(['Doelgroep', 'For Who', 'Voor wie'], filters.forWho) &&
       fieldEquals(['Kosten', 'How much?'], filters.cost) &&
-      fieldContains(['Address', 'Where', 'Waar'], filters.location)
+      fieldContains(['Address', 'Where', 'Waar'], filters.location) &&
+      checkActivityType(item, filters.activityType)
     );
   });
 }
 
 export function searchAndFilter(query, filters, data) {
+  if (!data || !Array.isArray(data)) {
+    console.warn('Invalid data provided to searchAndFilter');
+    return [];
+  }
+
+  return data.filter(item => {
+    // Check activity type first
+    if (filters.activityType && !checkActivityType(item, filters.activityType)) {
+      return false;
+    }
+
+    // Check time filter
+    if (filters.time) {
+      const itemTime = item['Tijd'] || item['Time'] || '';
+      if (!itemTime.toLowerCase().includes(filters.time.toLowerCase())) {
+        return false;
+      }
+    }
+
+    // Check category filter
+    if (filters.category) {
+      const itemCategory = item['Shiva Categorie'] || item['Category'] || item['Categorie'] || item['Unnamed: 1'] || '';
+      if (!itemCategory.toLowerCase().includes(filters.category.toLowerCase())) {
+        return false;
+      }
+    }
+
+    // Check search query
+    if (query) {
+      const searchFields = [
+        item['Activity type'] || '',
+        item['Activity name'] || '',
+        item['What'] || '',
+        item['Activiteit'] || '',
+        item['Beschrijving'] || '',
+        item['Tags'] || '',
+        item['Address'] || '',
+        item['Where'] || '',
+        item['Waar'] || '',
+        item['organisatie'] || '',
+        item['Doelgroep'] || '',
+        item['For Who'] || '',
+        item['Voor wie'] || '',
+        item['Domein / Intentie'] || ''
+      ];
+      
+      const searchText = searchFields.join(' ').toLowerCase();
+      const searchQuery = query.toLowerCase();
+      
+      // Check for exact match or partial match
+      if (!searchText.includes(searchQuery)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+// Function to analyze activity type frequency
+export function analyzeActivityTypes(data) {
   if (!data || !Array.isArray(data)) return [];
   
-  let results = query ? searchActivities(query, data) : data;
-  if (Object.values(filters).some(val => val)) {
-    results = filterActivities(filters, results);
-  }
-  return results;
+  const activityTypeCounts = {};
+  
+  data.forEach(item => {
+    const activityTypeFields = ['Activity type', 'What', 'Wat', 'Activiteit'];
+    const itemType = item[activityTypeFields.find(field => item[field]) || ''];
+    
+    if (itemType) {
+      const normalizedType = itemType.toLowerCase().trim();
+      activityTypeCounts[normalizedType] = (activityTypeCounts[normalizedType] || 0) + 1;
+    }
+  });
+  
+  // Convert to array and sort by frequency
+  return Object.entries(activityTypeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => ({ type, count }));
 }
+
+// Updated type mappings based on most frequent activity types
+const typeMappings = {
+  'sport': ['sport', 'voetbal', 'tennis', 'zwemmen', 'hardlopen', 'koersbal', 'darten'],
+  'ontmoeting': ['ontmoeting', 'ontmoeten', 'sociaal', 'huiskamer', 'koffie', 'thee', 'maatje', 'sociaal isolement'],
+  'spelletjes': ['spelletjes', 'kaart', 'sjoelen', 'koersbal', 'darten', 'spel'],
+  'wandelen': ['wandelen', 'wandeling', 'lopen'],
+  'eten': ['eten', 'koken', 'bakken', 'culinair', 'maaltijd', 'lunch'],
+  'creatief': ['creatief', 'schilderen', 'tekenen', 'knutselen', 'handwerken']
+};
+
+// Helper function to check activity type
+const checkActivityType = (item, type) => {
+  if (!type) return true; // No filter applied
+  
+  const activityTypeFields = ['Activity type', 'What', 'Wat', 'Activiteit'];
+  const itemType = item[activityTypeFields.find(field => item[field]) || ''];
+  const tags = item['Tags'] || '';
+  
+  if (!itemType && !tags) return false;
+  
+  const matchingTypes = typeMappings[type] || [];
+  
+  // Check both the activity type and tags
+  const itemTypeLower = itemType ? itemType.toLowerCase() : '';
+  const tagsLower = tags.toLowerCase();
+  
+  return matchingTypes.some(t => 
+    itemTypeLower.includes(t) || 
+    tagsLower.includes(t)
+  );
+};

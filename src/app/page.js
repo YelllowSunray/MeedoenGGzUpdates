@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import Filters from './components/Filters';
 import ResultsList from './components/ResultsList';
-import { searchAndFilter } from './lib/search';
+import { searchAndFilter, analyzeActivityTypes } from './lib/search';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import dynamic from 'next/dynamic';
@@ -11,6 +11,8 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import { useSearchParams } from 'next/navigation';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 
 // Fix hydration issues by dynamically importing components that rely on data
 const DynamicResultsList = dynamic(() => Promise.resolve(ResultsList), {
@@ -112,6 +114,14 @@ export default function Home() {
     }
   }, [query, filters, data, debugMode]);
 
+  // Add this useEffect to analyze activity types
+  useEffect(() => {
+    if (data && data.length > 0 && debugMode) {
+      const activityTypeAnalysis = analyzeActivityTypes(data);
+      console.log('Most popular activity types:', activityTypeAnalysis);
+    }
+  }, [data, debugMode]);
+
   const handleSearch = (newQuery) => {
     setQuery(newQuery);
   };
@@ -130,32 +140,84 @@ export default function Home() {
   }
 
   return (
-    <Container maxWidth="lg" style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>
-        Vind een Activiteit
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* Welcome Message */}
+      <Typography 
+        variant="h6" 
+        sx={{ 
+          textAlign: 'center', 
+          mb: 2,
+          color: 'text.secondary',
+          fontStyle: 'italic',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: '100%',
+          mx: 'auto',
+          fontSize: '1.1rem'
+        }}
+      >
+        Verbinden van mensen van alle achtergronden met warme en vriendelijke activiteiten
       </Typography>
-      
+
+      {/* Search Block */}
+      <Paper 
+        elevation={1} 
+        sx={{ 
+          p: 3, 
+          mb: 4,
+          borderRadius: 2,
+          bgcolor: 'white',
+          maxWidth: '800px',
+          mx: 'auto'
+        }}
+      >
+        <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
+          Zoek een activiteit
+        </Typography>
+        <SearchBar onSearch={handleSearch} />
+      </Paper>
+
+      {/* Categorization Block */}
+      <Paper 
+        elevation={1} 
+        sx={{ 
+          p: 3, 
+          mb: 4,
+          borderRadius: 2,
+          bgcolor: 'white',
+          maxWidth: '800px',
+          mx: 'auto'
+        }}
+      >
+        <Typography variant="h6" gutterBottom sx={{ textAlign: 'center' }}>
+          Categorieën
+        </Typography>
+        <Box sx={{ mt: 2 }}>
+          <Filters onFilter={handleFilter} data={data} />
+        </Box>
+      </Paper>
+
+      {/* Error and Debug Messages */}
       {error && (
-        <Alert severity="error" style={{ marginBottom: '20px' }}>
+        <Alert severity="error" sx={{ mb: 3, maxWidth: '800px', mx: 'auto' }}>
           Er is een fout opgetreden: {error}
         </Alert>
       )}
       
       {debugMode && (
-        <Alert severity="info" style={{ marginBottom: '20px' }}>
+        <Alert severity="info" sx={{ mb: 3, maxWidth: '800px', mx: 'auto' }}>
           Debug mode actief. Data items: {data?.length || 0}
         </Alert>
       )}
-      
-      <SearchBar onSearch={handleSearch} />
-      <Filters onFilter={handleFilter} data={data} />
-      
+
+      {/* Results Section */}
       {loading ? (
-        <Typography>Activiteiten worden geladen...</Typography>
+        <Typography sx={{ textAlign: 'center' }}>Activiteiten worden geladen...</Typography>
       ) : (
         <>
           {debugMode && (
-            <Box sx={{ mb: 2, mt: 2 }}>
+            <Box sx={{ mb: 2, mt: 2, maxWidth: '800px', mx: 'auto' }}>
               <Typography variant="subtitle2">
                 Resultaten: {results.length} van {data.length} items
               </Typography>
@@ -167,8 +229,8 @@ export default function Home() {
                       p: 1.5, 
                       bgcolor: '#f5f5f5', 
                       borderBottom: showDebugFields ? '1px solid #ddd' : 'none',
-                      display: 'flex',
-                      justifyContent: 'space-between',
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
                       alignItems: 'center',
                       cursor: 'pointer'
                     }}
@@ -203,7 +265,7 @@ export default function Home() {
           />
           
           {debugMode && results.length > 0 && (
-            <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+            <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1, maxWidth: '800px', mx: 'auto' }}>
               <Typography variant="subtitle2">Eerste resultaat (debug):</Typography>
               <pre style={{ overflow: 'auto', maxHeight: '200px' }}>
                 {JSON.stringify(results[0], null, 2)}
@@ -212,7 +274,7 @@ export default function Home() {
           )}
           
           {debugMode && (
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Button 
                 variant="outlined"
                 size="small"
