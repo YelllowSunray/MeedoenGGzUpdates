@@ -1,0 +1,47 @@
+/* src/app/components/navbar/navbar.css */
+.navbar {
+    background-color: #fa9cec; /* Change navbar color to ED1651 */
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px; /* Optional: Add some padding */
+}
+
+.site-name {
+    color: white;
+    font-size: 2rem; /* Font size for site name */
+    font-weight: bold; /* Keep site name bold */
+    padding: 2px 8px; /* Reduced padding for site name */
+    margin: 0; /* Remove any margin */
+    text-decoration: none; /* Remove underline */
+}
+
+.navbar-list {
+    list-style-type: none; /* Remove bullet points */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Use flexbox for layout */
+    justify-content: flex-end; /* Align items from the right */
+}
+
+.navbar-item {
+    color: white; /* Text color */
+    text-align: center;
+    padding: 2px 8px; /* Reduced padding for navbar items */
+    text-decoration: none; /* Remove underline */
+    font-family: inherit; /* Use the inherited Cabin font */
+    font-size: 1.3rem; /* Font size for navbar items */
+    font-weight: bold; /* Make navbar items bold */
+    margin: 0; /* Remove any margin */
+}
+
+/* Add styles for links inside navbar items */
+.navbar-item a {
+    text-decoration: none;
+    color: white;
+}
+
+.navbar-item:hover {
+    background-color: #3e8e41; /* Darker green on hover */
+}
