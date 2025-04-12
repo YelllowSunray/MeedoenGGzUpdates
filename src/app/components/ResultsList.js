@@ -1,6 +1,6 @@
 import ActivityCard from './ActivityCard';
 
-export default function ResultsList({ activities }) {
+export default function ResultsList({ activities, debug = false }) {
   if (!activities.length) {
     return <p>Geen activiteiten gevonden. Probeer een andere zoekopdracht.</p>;
   }
@@ -9,7 +9,7 @@ export default function ResultsList({ activities }) {
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
       {activities.map((activity, index) => (
         <div key={index} style={{ flex: '0 0 calc(33.33% - 14px)' }}>
-          <ActivityCard activity={activity} />
+          <ActivityCard activity={{ ...activity, debug: debug && index === 0 }} />
         </div>
       ))}
     </div>

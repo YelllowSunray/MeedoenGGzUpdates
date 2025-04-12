@@ -2,14 +2,14 @@ import Fuse from 'fuse.js';
 
 const fuseOptions = {
   keys: [
-    'What',
-    'What specific',
-    'For Who',
-    'Why',
-    'Unnamed: 7', // Description
-    'Unnamed: 14', // Keywords
-    'Where',
-    'By who'
+    'Activity type',
+    'Activity name',
+    'Doelgroep',
+    'Domein / Intentie',
+    'Beschrijving',
+    'Tags',
+    'Address',
+    'organisatie'
   ],
   threshold: 0.4, // Adjust for fuzziness (0 = exact match, 1 = very loose)
   includeScore: true,
@@ -31,11 +31,35 @@ export function filterActivities(filters, data) {
   return data.filter(item => {
     if (!item) return false;
     
+    // Helper function to check if any field contains the value
+    const fieldContains = (possibleFields, value) => {
+      if (!value) return true; // No filter applied
+      
+      for (const field of possibleFields) {
+        if (item[field] && item[field].toLowerCase().includes(value.toLowerCase())) {
+          return true;
+        }
+      }
+      return false;
+    };
+    
+    // Helper function for exact match
+    const fieldEquals = (possibleFields, value) => {
+      if (!value) return true; // No filter applied
+      
+      for (const field of possibleFields) {
+        if (item[field] && item[field].toLowerCase() === value.toLowerCase()) {
+          return true;
+        }
+      }
+      return false;
+    };
+    
     return (
-      (!filters.category || (item['Unnamed: 1'] && item['Unnamed: 1'].toLowerCase() === filters.category.toLowerCase())) &&
-      (!filters.forWho || (item['For Who'] && item['For Who'].toLowerCase().includes(filters.forWho.toLowerCase()))) &&
-      (!filters.cost || (item['How much?'] && item['How much?'].toLowerCase() === filters.cost.toLowerCase())) &&
-      (!filters.location || (item['Where'] && item['Where'].toLowerCase().includes(filters.location.toLowerCase())))
+      fieldEquals(['Shiva Categorie', 'Category', 'Categorie', 'Unnamed: 1'], filters.category) &&
+      fieldContains(['Doelgroep', 'For Who', 'Voor wie'], filters.forWho) &&
+      fieldEquals(['Kosten', 'How much?'], filters.cost) &&
+      fieldContains(['Address', 'Where', 'Waar'], filters.location)
     );
   });
 }

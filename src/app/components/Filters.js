@@ -17,14 +17,21 @@ export default function Filters({ onFilter, data = [] }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     const newFilters = { ...filters, [name]: value };
+    
+    // Debug logging
+    if (name === 'category') {
+      console.log('Selected category:', value);
+      console.log('Available categories:', categories);
+    }
+    
     setFilters(newFilters);
     onFilter(newFilters);
   };
 
   // Unique values for dropdowns (derived from data)
-  const categories = [...new Set(data.map(item => item['Unnamed: 1'] || '').filter(Boolean))];
-  const forWhoOptions = [...new Set(data.map(item => item['For Who'] || '').filter(Boolean))];
-  const costOptions = [...new Set(data.map(item => item['How much?'] || '').filter(Boolean))];
+  const categories = [...new Set(data.map(item => item['Shiva Categorie'] || '').filter(Boolean))];
+  const forWhoOptions = [...new Set(data.map(item => item['Doelgroep'] || item['For Who'] || '').filter(Boolean))];
+  const costOptions = [...new Set(data.map(item => item['Kosten'] || item['How much?'] || '').filter(Boolean))];
 
   return (
     <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
