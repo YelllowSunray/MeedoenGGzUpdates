@@ -40,10 +40,16 @@ export default function ActivityCard({ activity }) {
   };
 
   return (
-    <Card style={{ 
+    <Card sx={{ 
       marginBottom: '10px', 
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)', 
-      height: '300px', // Fixed height
+      height: { 
+        xs: '300px',  // Mobile
+        sm: '320px',  // Small screens
+        md: '350px',  // Medium screens
+        lg: '400px',  // Large screens
+        xl: '450px'   // Extra large screens
+      }, 
       display: 'flex',
       flexDirection: 'column'
     }}>
