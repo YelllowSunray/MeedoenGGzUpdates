@@ -1,12 +1,18 @@
+'use client';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function ActivityCard({ activity }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Safe getter for activity fields - try multiple possible field names
   const getField = (fields, fallback = '') => {
@@ -26,6 +32,8 @@ export default function ActivityCard({ activity }) {
                'Onbekende activiteit';
 
   const handleViewDetails = () => {
+    if (!mounted) return;
+    
     // Store the full activity data in sessionStorage
     sessionStorage.setItem('activityDetails', JSON.stringify(activity));
     // Save current scroll position in history state
@@ -36,6 +44,10 @@ export default function ActivityCard({ activity }) {
     // Navigate to the details page
     router.push(`/activiteit/${encodeURIComponent(title)}`);
   };
+
+  if (!mounted) {
+    return null; // Don't render anything until mounted
+  }
 
   return (
     <Card style={{ 
