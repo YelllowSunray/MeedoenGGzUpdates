@@ -82,10 +82,10 @@ export default function ActivityDetails() {
             Contact informatie
           </Typography>
           <Typography color="text.secondary" style={{ margin: '8px 0' }}>
-            <strong>📞 Contact:</strong> {getField(['Contact', 'Unnamed: 11', 'Contactgegevens'])}
+            <strong>📞 Contact:</strong> {getField(['Contact'])}
           </Typography>
           <Typography color="text.secondary" style={{ margin: '8px 0' }}>
-            <strong>🔗 Website:</strong> {getField(['website', 'Website', 'URL'])}
+            <strong>🔗 Website:</strong> {getField(['website'])}
           </Typography>
 
           <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>

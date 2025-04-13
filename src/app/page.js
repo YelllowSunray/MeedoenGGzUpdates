@@ -1,17 +1,10 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, CircularProgress, Alert } from '@mui/material';
+
+import { useState, useEffect } from 'react';
+import { Box, Typography, CircularProgress, Alert } from '@mui/material';
 import SearchBar from './components/SearchBar';
 import Filters from './components/Filters';
 import ResultsList from './components/ResultsList';
-import { searchAndFilter, analyzeActivityTypes } from './lib/search';
-import dynamic from 'next/dynamic';
-import Button from '@mui/material/Button';
-
-// Fix hydration issues by dynamically importing components that rely on data
-const DynamicResultsList = dynamic(() => Promise.resolve(ResultsList), {
-  ssr: false
-});
 
 export default function Home() {
   const [activities, setActivities] = useState([]);
@@ -19,55 +12,64 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
-    category: '',
-    targetAudience: '',
-    cost: '',
-    activityType: ''
+    domain: null
   });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const fetchActivities = async () => {
       try {
+        console.log('Fetching activities...');
         setLoading(true);
         setError(null);
-        console.log('Fetching activities from API...');
         
-        const response = await fetch('/api/sheets');
-        console.log('API response status:', response.status);
+        const response = await fetch('/api/sheets', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
         
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          throw new Error('Failed to fetch activities');
         }
         
         const data = await response.json();
-        console.log('Received activities count:', data.length);
         
         if (!Array.isArray(data)) {
-          throw new Error('Invalid data format: expected an array');
-        }
-        
-        if (data.length === 0) {
-          console.warn('No activities found in the response');
-        } else {
-          console.log('First activity:', data[0]);
+          throw new Error('Invalid data format received');
         }
         
         setActivities(data);
-      } catch (error) {
-        console.error('Error fetching activities:', error);
-        setError(error.message);
+      } catch (err) {
+        console.error('Error fetching activities:', err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchActivities();
-  }, []);
+  }, [mounted]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  if (!mounted) {
+    return null;
+  }
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );
@@ -75,36 +77,28 @@ export default function Home() {
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Box sx={{ p: 3 }}>
         <Alert severity="error">
-          Error loading activities: {error}
+          {error}
         </Alert>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4 }}>
-        <SearchBar 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-        />
-        
-        <Box sx={{ mb: 4 }}>
-          <Filters 
-            filters={filters} 
-            setFilters={setFilters} 
-            activities={activities}
-          />
-        </Box>
-        
-        <ResultsList 
-          activities={activities}
-          searchQuery={searchQuery}
-          filters={filters}
-        />
-      </Box>
-    </Container>
+    <Box sx={{ p: 3, maxWidth: '1200px', margin: '0 auto' }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+      </Typography>
+      <SearchBar onSearch={handleSearch} />
+      <Filters 
+        filters={filters}
+        onFilterChange={setFilters}
+      />
+      <ResultsList 
+        activities={activities} 
+        searchQuery={searchQuery}
+        filters={filters}
+      />
+    </Box>
   );
 }

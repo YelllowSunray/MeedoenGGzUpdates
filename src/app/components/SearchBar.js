@@ -4,7 +4,7 @@ import React from 'react';
 import { TextField, Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
-export default function SearchBar({ searchQuery, setSearchQuery }) {
+export default function SearchBar({ onSearch }) {
   return (
     <Box 
       sx={{ 
@@ -18,12 +18,11 @@ export default function SearchBar({ searchQuery, setSearchQuery }) {
         fullWidth
         variant="outlined"
         placeholder="Zoek activiteiten..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => onSearch(e.target.value)}
         sx={{
-          maxWidth: '600px', // Reduced width
+          maxWidth: '600px',
           '& .MuiOutlinedInput-root': {
-            borderRadius: '30px', // Rounded corners
+            borderRadius: '30px',
             backgroundColor: 'background.paper',
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: 'primary.main',
