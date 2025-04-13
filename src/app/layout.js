@@ -1,5 +1,6 @@
 import { CssBaseline } from '@mui/material';
 import NavbarWrapper from './components/navbar/NavbarWrapper';
+import Footer from './components/Footer';
 import { Inter, Cabin } from 'next/font/google';
 import './globals.css';
 
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
         <CssBaseline />
         <NavbarWrapper />
         {children}
+        <Footer />
       </body>
     </html>
   );
