@@ -74,22 +74,23 @@ export default function Home() {
       });
       
       if (!response.ok) {
-        throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
       
       const sheetsData = await response.json();
       
       if (!Array.isArray(sheetsData)) {
-        throw new Error(`Invalid data format: expected array, got ${typeof sheetsData}`);
+        throw new Error('Invalid data format: expected an array');
+      }
+      
+      if (sheetsData.length === 0) {
+        console.warn('No activities found in the response');
       }
       
       setData(sheetsData);
-      
-      if (sheetsData.length === 0) {
-        console.warn('No data items found in the response');
-      }
     } catch (error) {
-      console.error('Error fetching sheet data:', error);
+      console.error('Error fetching activities:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -132,47 +133,46 @@ export default function Home() {
     return null;
   }
 
-  return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* Welcome Message */}
-      <Typography 
-        variant="h6" 
-        sx={{ 
-          textAlign: 'center', 
-          mb: 2,
-          color: 'text.secondary',
-          fontStyle: 'italic',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        Welkom bij de Activiteiten Zoeker
-      </Typography>
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-      {/* Search and Filters Section */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <SearchBar onSearch={handleSearch} />
-        <Filters onFilter={handleFilter} data={data} />
-      </Paper>
-
-      {/* Results Section */}
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : error ? (
-        <Alert 
-          severity="error" 
-          action={
-            <Button color="inherit" size="small" onClick={handleRetry}>
-              Probeer opnieuw
-            </Button>
-          }
-        >
-          {error}
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Alert severity="error">
+          Error loading activities: {error}
         </Alert>
-      ) : (
-        <DynamicResultsList activities={results} />
-      )}
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ my: 4 }}>
+        <SearchBar 
+          searchQuery={query} 
+          setSearchQuery={handleSearch} 
+        />
+        
+        <Box sx={{ mb: 4 }}>
+          <Filters 
+            filters={filters} 
+            setFilters={handleFilter} 
+            activities={data}
+          />
+        </Box>
+        
+        <ResultsList 
+          activities={results}
+          searchQuery={query}
+          filters={filters}
+        />
+      </Box>
 
       {/* Status Bar */}
       <Box sx={{ 

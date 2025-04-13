@@ -36,15 +36,17 @@ async function readLocalJSON() {
 
 export async function GET() {
   try {
+    console.log('Starting API request...');
+    
     // Try Google Sheets first
     if (process.env.GOOGLE_SHEETS_CLIENT_EMAIL && 
         process.env.GOOGLE_SHEETS_PRIVATE_KEY && 
         process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
       try {
-        console.log('Fetching from Google Sheets...');
+        console.log('Attempting to fetch from Google Sheets...');
         
         const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, '\n');
-
+        
         const auth = new google.auth.JWT({
           email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
           key: privateKey,
@@ -52,6 +54,7 @@ export async function GET() {
         });
 
         await auth.authorize();
+        console.log('Google Sheets authentication successful');
 
         const sheets = google.sheets({ 
           version: 'v4', 
@@ -67,7 +70,6 @@ export async function GET() {
         if (response.data.values) {
           const headers = response.data.values[0];
           console.log('Headers from Google Sheets:', headers);
-          console.log('First row of data:', response.data.values[1]);
           
           const data = response.data.values.slice(1).map(row => {
             const item = {};
@@ -77,29 +79,42 @@ export async function GET() {
             return item;
           });
 
-          console.log('Sample of processed data:', data[0]);
-          console.log('Total Google Sheets entries:', data.length);
+          console.log(`Successfully fetched ${data.length} items from Google Sheets`);
           return NextResponse.json(data);
         } else {
           throw new Error('No data values in response');
         }
       } catch (sheetsError) {
         console.error('Google Sheets error:', sheetsError);
-        // If Google Sheets fails, try local JSON as fallback
         console.log('Falling back to local JSON...');
-        const localData = await readLocalJSON();
-        if (localData) {
-          return NextResponse.json(localData);
-        }
       }
     }
 
-    // If both Google Sheets and local JSON fail, return empty array
-    console.log('Both Google Sheets and local JSON failed, returning empty array');
-    return NextResponse.json([]);
+    // Fallback to local JSON
+    const filePath = path.join(process.cwd(), 'public', 'documents', 'data.json');
+    console.log('Looking for data.json at:', filePath);
+    
+    if (!fs.existsSync(filePath)) {
+      console.error('data.json file not found at:', filePath);
+      return NextResponse.json({ error: 'No data source available' }, { status: 500 });
+    }
+    
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const data = JSON.parse(fileContent);
+    
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid data format: expected an array');
+    }
+    
+    console.log(`Falling back to local JSON with ${data.length} items`);
+    return NextResponse.json(data);
+    
   } catch (error) {
-    console.error('Error in API route:', error);
-    return NextResponse.json({ error: 'Error fetching data' }, { status: 500 });
+    console.error('Error in sheets API route:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch activities', details: error.message },
+      { status: 500 }
+    );
   }
 } 
 

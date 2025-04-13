@@ -4,7 +4,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
@@ -53,21 +52,12 @@ const activityTypes = [
   { type: 'creatief', icon: <Brush />, label: 'Creatief' }
 ];
 
-export default function Filters({ onFilter, data = [] }) {
-  const [filters, setFilters] = useState({
-    category: '',
-    forWho: '',
-    cost: '',
-    location: '',
-    activityType: ''
-  });
-
+export default function Filters({ filters, setFilters, activities = [] }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log(`Filter changed: ${name} = ${value}`);
     const newFilters = { ...filters, [name]: value };
     setFilters(newFilters);
-    onFilter(newFilters);
   };
 
   const handleActivityTypeClick = (type) => {
@@ -76,29 +66,28 @@ export default function Filters({ onFilter, data = [] }) {
       activityType: filters.activityType === type ? '' : type 
     };
     setFilters(newFilters);
-    onFilter(newFilters);
   };
 
   // Debug: Log the first item's complete structure
-  if (data.length > 0) {
-    console.log('Complete first item:', data[0]);
-    console.log('Available fields:', Object.keys(data[0]));
+  if (activities.length > 0) {
+    console.log('Complete first item:', activities[0]);
+    console.log('Available fields:', Object.keys(activities[0]));
   }
 
   // Unique values for dropdowns (derived from data)
-  const categories = [...new Set(data.map(item => {
+  const categories = [...new Set(activities.map(item => {
     const value = item['Shiva Categorie'];
     if (value) console.log('Found Category:', value);
     return value || '';
   }).filter(Boolean))].sort();
   
-  const forWhoOptions = [...new Set(data.map(item => {
+  const forWhoOptions = [...new Set(activities.map(item => {
     const value = item['Doelgroep'];
     if (value) console.log('Found Doelgroep:', value);
     return value || '';
   }).filter(Boolean))].sort();
   
-  const costOptions = [...new Set(data.map(item => {
+  const costOptions = [...new Set(activities.map(item => {
     const value = item['Kosten'];
     if (value) console.log('Found Kosten:', value);
     return value || '';
@@ -161,8 +150,8 @@ export default function Filters({ onFilter, data = [] }) {
         <FormControl sx={{ minWidth: 140 }}>
           <InputLabel>Voor wie</InputLabel>
           <Select 
-            name="forWho" 
-            value={filters.forWho} 
+            name="targetAudience" 
+            value={filters.targetAudience} 
             onChange={handleChange}
             MenuProps={{ style: { maxHeight: '400px' } }}
           >

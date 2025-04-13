@@ -1,41 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import React from 'react';
+import { TextField, Box } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
-export default function SearchBar({ onSearch }) {
-  const [query, setQuery] = useState('');
-
-  // Add debounce functionality to avoid excessive searches
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onSearch(query);
-    }, 300); // 300ms delay after user stops typing
-
-    return () => clearTimeout(timer);
-  }, [query, onSearch]);
-
-  const handleChange = (e) => {
-    setQuery(e.target.value);
-  };
-
-  const handleSearch = () => {
-    onSearch(query);
-  };
-
+export default function SearchBar({ searchQuery, setSearchQuery }) {
   return (
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '5px' }}>
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        mb: 3,
+        width: '100%'
+      }}
+    >
       <TextField
-        label="Zoeken op activiteit, locatie of groep"
-        variant="outlined"
-        value={query}
-        onChange={handleChange}
         fullWidth
+        variant="outlined"
+        placeholder="Zoek activiteiten..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{
+          maxWidth: '600px', // Reduced width
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '30px', // Rounded corners
+            backgroundColor: 'background.paper',
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'primary.main',
+            },
+          },
+        }}
+        InputProps={{
+          startAdornment: <SearchIcon sx={{ color: 'action.active', mr: 1 }} />,
+        }}
       />
-      <Button variant="contained" onClick={handleSearch}>
-        Zoeken
-      </Button>
-    </div>
+    </Box>
   );
 }

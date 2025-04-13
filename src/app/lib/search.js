@@ -104,11 +104,10 @@ export function filterActivities(filters, data) {
     const checkActivityType = (item, type) => {
       if (!type) return true; // No filter applied
       
-      const activityName = item['Activity name'] || item['Activiteit'] || item['What specific'] || item['What'] || '';
-      const tags = item['Tags'] || item['Categorieën'] || item['Unnamed: 14'] || '';
-      const description = item['Beschrijving'] || item['Unnamed: 7'] || item['Description'] || '';
+      const activityName = item['Activity name'] || item['Activiteit long'] || '';
+      const description = item['Beschrijving'] || '';
       
-      if (!activityName && !tags && !description) return false;
+      if (!activityName && !description) return false;
       
       // Map activity types to their corresponding filter values
       const typeMappings = {
@@ -121,23 +120,20 @@ export function filterActivities(filters, data) {
       
       const matchingTypes = typeMappings[type] || [];
       
-      // Check activity name, tags, and description
+      // Check activity name and description
       const activityNameLower = activityName.toLowerCase();
-      const tagsLower = tags.toLowerCase();
       const descriptionLower = description.toLowerCase();
       
       return matchingTypes.some(t => 
         activityNameLower.includes(t) || 
-        tagsLower.includes(t) ||
         descriptionLower.includes(t)
       );
     };
     
     return (
-      fieldContains('Doelgroep', filters.forWho) &&
+      fieldContains('Doelgroep', filters.targetAudience) &&
       fieldContains('Kosten', filters.cost) &&
       fieldEquals('Shiva Categorie', filters.category) &&
-      fieldContains('Where', filters.location) &&
       checkActivityType(item, filters.activityType)
     );
   });
