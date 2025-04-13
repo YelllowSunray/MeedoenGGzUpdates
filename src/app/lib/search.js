@@ -106,8 +106,9 @@ export function filterActivities(filters, data) {
       
       const activityName = item['Activity name'] || item['Activiteit long'] || '';
       const description = item['Beschrijving'] || '';
+      const tags = item['Tags'] || '';
       
-      if (!activityName && !description) return false;
+      if (!activityName && !description && !tags) return false;
       
       // Map activity types to their corresponding filter values
       const typeMappings = {
@@ -120,13 +121,23 @@ export function filterActivities(filters, data) {
       
       const matchingTypes = typeMappings[type] || [];
       
-      // Check activity name and description
+      // Check activity name, description, and tags
       const activityNameLower = activityName.toLowerCase();
       const descriptionLower = description.toLowerCase();
+      const tagsLower = tags.toLowerCase();
+      
+      console.log('Checking activity type:', {
+        type,
+        activityName,
+        description,
+        tags,
+        matchingTypes
+      });
       
       return matchingTypes.some(t => 
         activityNameLower.includes(t) || 
-        descriptionLower.includes(t)
+        descriptionLower.includes(t) ||
+        tagsLower.includes(t)
       );
     };
     

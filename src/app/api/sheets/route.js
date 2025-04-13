@@ -44,6 +44,7 @@ export async function GET() {
         process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
       try {
         console.log('Attempting to fetch from Google Sheets...');
+        console.log('Using spreadsheet ID:', process.env.GOOGLE_SHEETS_SPREADSHEET_ID);
         
         const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, '\n');
         
@@ -88,6 +89,8 @@ export async function GET() {
         console.error('Google Sheets error:', sheetsError);
         console.log('Falling back to local JSON...');
       }
+    } else {
+      console.log('Google Sheets credentials not found, using local JSON');
     }
 
     // Fallback to local JSON
@@ -100,13 +103,19 @@ export async function GET() {
     }
     
     const fileContent = fs.readFileSync(filePath, 'utf8');
+    console.log('File content length:', fileContent.length);
+    
     const data = JSON.parse(fileContent);
+    console.log(`Successfully loaded ${data.length} items from local JSON`);
     
     if (!Array.isArray(data)) {
       throw new Error('Invalid data format: expected an array');
     }
     
-    console.log(`Falling back to local JSON with ${data.length} items`);
+    if (data.length === 0) {
+      console.warn('Local JSON file is empty');
+    }
+    
     return NextResponse.json(data);
     
   } catch (error) {
