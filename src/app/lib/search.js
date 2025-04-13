@@ -11,13 +11,10 @@ const fuseOptions = {
     'Address',
     'organisatie'
   ],
-  threshold: 0.6, // Increased threshold for more flexible matching
+  threshold: 0.4, // Adjust for fuzziness (0 = exact match, 1 = very loose)
   includeScore: true,
   ignoreLocation: true,
-  minMatchCharLength: 2,
-  ignoreFieldNorm: true, // Don't weight shorter fields more heavily
-  useExtendedSearch: true, // Enable fuzzy search
-  findAllMatches: true // Find all matches, not just the best one
+  minMatchCharLength: 2
 };
 
 export function searchActivities(query, data) {
@@ -131,27 +128,21 @@ export function searchAndFilter(query, filters, data) {
     // Check search query
     if (query) {
       const searchFields = [
-        item['Activity type'] || '',
-        item['Activity name'] || '',
         item['What'] || '',
-        item['Activiteit'] || '',
-        item['Beschrijving'] || '',
-        item['Tags'] || '',
-        item['Address'] || '',
         item['Where'] || '',
-        item['Waar'] || '',
-        item['organisatie'] || '',
-        item['Doelgroep'] || '',
+        item['When'] || '',
+        item['How much?'] || '',
         item['For Who'] || '',
-        item['Voor wie'] || '',
-        item['Domein / Intentie'] || ''
+        item['Shiva Categorie'] || '',
+        item['Category'] || '',
+        item['Categorie'] || '',
+        item['Unnamed: 1'] || '',
+        item['Tijd'] || '',
+        item['Time'] || ''
       ];
       
       const searchText = searchFields.join(' ').toLowerCase();
-      const searchQuery = query.toLowerCase();
-      
-      // Check for exact match or partial match
-      if (!searchText.includes(searchQuery)) {
+      if (!searchText.includes(query.toLowerCase())) {
         return false;
       }
     }

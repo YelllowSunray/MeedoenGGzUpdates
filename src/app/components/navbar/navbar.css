@@ -1,51 +1,32 @@
-/* src/app/components/navbar/navbar.css */
 .navbar {
-    background-color: #40E0D0; /* Changed to turquoise */
-    overflow: hidden;
+    background-color: #40E0D0;
+    padding: 0 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px; /* Optional: Add some padding */
-    font-family: var(--font-cabin), sans-serif;
+    height: 64px;
 }
 
 .site-name {
     color: white;
-    font-size: 2rem; /* Font size for site name */
-    font-weight: bold; /* Keep site name bold */
-    padding: 2px 8px; /* Reduced padding for site name */
-    margin: 0; /* Remove any margin */
-    text-decoration: none; /* Remove underline */
-    font-family: var(--font-cabin), sans-serif;
-}
-
-.navbar-list {
-    list-style-type: none; /* Remove bullet points */
-    margin: 0;
-    padding: 0;
-    display: flex; /* Use flexbox for layout */
-    justify-content: flex-end; /* Align items from the right */
-    font-family: var(--font-cabin), sans-serif;
-}
-
-.navbar-item {
-    color: white; /* Text color */
-    text-align: center;
-    padding: 2px 8px; /* Reduced padding for navbar items */
-    text-decoration: none; /* Remove underline */
-    font-family: var(--font-cabin), sans-serif;
-    font-size: 1.3rem; /* Font size for navbar items */
-    font-weight: bold; /* Make navbar items bold */
-    margin: 0; /* Remove any margin */
-}
-
-/* Add styles for links inside navbar items */
-.navbar-item a {
+    font-size: 2rem;
+    font-weight: bold;
     text-decoration: none;
-    color: white;
-    font-family: var(--font-cabin), sans-serif;
 }
 
-.navbar-item:hover {
-    background-color: #30C0B0; /* Darker turquoise on hover */
+.nav-links {
+    display: flex;
+    gap: 16px;
 }
+
+.nav-link {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 2px 8px;
+}
+
+.nav-link:hover {
+    background-color: #30C0B0;
+} 

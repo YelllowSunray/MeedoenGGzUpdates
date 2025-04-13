@@ -1,5 +1,3 @@
-'use client';
-
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -40,16 +38,10 @@ export default function ActivityCard({ activity }) {
   };
 
   return (
-    <Card sx={{ 
+    <Card style={{ 
       marginBottom: '10px', 
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)', 
-      height: { 
-        xs: '300px',  // Mobile
-        sm: '320px',  // Small screens
-        md: '350px',  // Medium screens
-        lg: '400px',  // Large screens
-        xl: '450px'   // Extra large screens
-      }, 
+      height: '300px', // Fixed height
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -58,7 +50,7 @@ export default function ActivityCard({ activity }) {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden' // Hide overflow
       }}>
         <Typography variant="h6" component="div" gutterBottom style={{ 
           overflow: 'hidden',

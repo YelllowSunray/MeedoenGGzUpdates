@@ -7,15 +7,12 @@ export default function ScrollRestorer() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Only run on the client side
+    if (typeof window === 'undefined') return;
+
     const handlePopState = (event) => {
       if (event.state?.scrollPosition !== undefined) {
-        // Wait for the next frame to ensure content is loaded
-        requestAnimationFrame(() => {
-          // Wait a bit more to ensure all content is rendered
-          setTimeout(() => {
-            window.scrollTo(0, event.state.scrollPosition);
-          }, 100);
-        });
+        window.scrollTo(0, event.state.scrollPosition);
       }
     };
 

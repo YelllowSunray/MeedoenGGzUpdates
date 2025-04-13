@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import SearchBar from './components/SearchBar';
 import Filters from './components/Filters';
 import ResultsList from './components/ResultsList';
@@ -13,6 +13,7 @@ import Box from '@mui/material/Box';
 import { useSearchParams } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // Fix hydration issues by dynamically importing components that rely on data
 const DynamicResultsList = dynamic(() => Promise.resolve(ResultsList), {
@@ -29,80 +30,130 @@ export default function Home() {
     category: '',
     forWho: '',
     cost: '',
-    location: ''
+    location: '',
+    activityType: ''
   });
   const [results, setResults] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [networkStatus, setNetworkStatus] = useState(null);
 
   // Set mounted state to track client-side rendering
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch Google Sheets data
+  // Helper to show in the UI if we're online
   useEffect(() => {
-    const fetchSheetData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch('/api/sheets');
-        
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
-        }
-        
-        const sheetsData = await response.json();
-        
-        if (!Array.isArray(sheetsData)) {
-          throw new Error(`Invalid data format: expected array, got ${typeof sheetsData}`);
-        }
-        
-        if (debugMode) {
-          console.log('Fetched data:', sheetsData);
-          
-          // Log available fields from first item
-          if (sheetsData.length > 0) {
-            console.log('Available fields in first item:', Object.keys(sheetsData[0]));
-            console.log('First item values:', sheetsData[0]);
-            
-            // Add these lines to specifically check category field
-            console.log('Category field value:', sheetsData[0]['Shiva Categorie']);
-            console.log('All possible category fields:', {
-              'Shiva Categorie': sheetsData[0]['Shiva Categorie'],
-              'Category': sheetsData[0]['Category'],
-              'Categorie': sheetsData[0]['Categorie'],
-              'Unnamed: 1': sheetsData[0]['Unnamed: 1']
-            });
-          }
-        }
-        
-        setData(sheetsData);
-        
-        if (sheetsData.length === 0) {
-          console.warn('No data items found in the response');
-        }
-      } catch (error) {
-        console.error('Error fetching sheet data:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
+    const updateNetworkStatus = () => {
+      setNetworkStatus(navigator.onLine ? 'online' : 'offline');
     };
 
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+    
+    // Initial status
+    updateNetworkStatus();
+    
+    return () => {
+      window.removeEventListener('online', updateNetworkStatus);
+      window.removeEventListener('offline', updateNetworkStatus);
+    };
+  }, []);
+
+  // Fetch Google Sheets data with retry logic
+  const fetchSheetData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log(`Fetching data (attempt ${retryCount + 1})...`);
+      
+      const startTime = performance.now();
+      
+      const response = await fetch('/api/sheets', {
+        // Add cache control
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      const endTime = performance.now();
+      console.log(`Fetch completed in ${Math.round(endTime - startTime)}ms with status ${response.status}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+      }
+      
+      const sheetsData = await response.json();
+      
+      if (!Array.isArray(sheetsData)) {
+        throw new Error(`Invalid data format: expected array, got ${typeof sheetsData}`);
+      }
+      
+      console.log('Data received:', sheetsData.length ? 'Yes' : 'No', 'Number of items:', sheetsData.length);
+      
+      if (debugMode) {
+        console.log('Fetched data:', sheetsData);
+        
+        // Log available fields from first item
+        if (sheetsData.length > 0) {
+          console.log('Available fields in first item:', Object.keys(sheetsData[0]));
+          console.log('First item values:', sheetsData[0]);
+          
+          // Add these lines to specifically check category field
+          console.log('Category field value:', sheetsData[0]['Shiva Categorie']);
+          console.log('All possible category fields:', {
+            'Shiva Categorie': sheetsData[0]['Shiva Categorie'],
+            'Category': sheetsData[0]['Category'],
+            'Categorie': sheetsData[0]['Categorie'],
+            'Unnamed: 1': sheetsData[0]['Unnamed: 1']
+          });
+        }
+      }
+      
+      setData(sheetsData);
+      
+      if (sheetsData.length === 0) {
+        console.warn('No data items found in the response');
+      }
+    } catch (error) {
+      console.error('Error fetching sheet data:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [debugMode, retryCount]);
+
+  useEffect(() => {
     if (mounted) {
       fetchSheetData();
     }
-  }, [mounted, debugMode]);
+  }, [mounted, fetchSheetData]);
+
+  // Implement retry button functionality
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   // Update search results when query, filters, or data changes
   useEffect(() => {
+    if (loading) {
+      return; // Don't update results while loading
+    }
+    
     if (data && data.length > 0) {
       const filteredResults = searchAndFilter(query, filters, data);
       setResults(filteredResults);
+      
+      console.log(`Search results: ${filteredResults.length} found from ${data.length} items`);
+      console.log('Current query:', query ? `"${query}"` : 'None');
+      console.log('Current filters:', Object.entries(filters).filter(([_, v]) => v).length ? filters : 'None');
       
       if (debugMode) {
         console.log(`Found ${filteredResults.length} results from ${data.length} items`);
@@ -111,8 +162,11 @@ export default function Home() {
       }
     } else {
       setResults([]);
+      if (!loading) { // Only log if we're not loading
+        console.log('No data available to search');
+      }
     }
-  }, [query, filters, data, debugMode]);
+  }, [query, filters, data, debugMode, loading]);
 
   // Add this useEffect to analyze activity types
   useEffect(() => {
@@ -198,22 +252,23 @@ export default function Home() {
         </Box>
       </Paper>
 
-      {/* Error and Debug Messages */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3, maxWidth: '800px', mx: 'auto' }}>
-          Er is een fout opgetreden: {error}
+      {/* Status info - visible in all modes */}
+      <Box sx={{ mb: 3, maxWidth: '800px', mx: 'auto' }}>
+        <Alert severity="info">
+          <strong>Status:</strong> {networkStatus ? `${networkStatus}` : 'checking...'} | 
+          <strong> Data Source:</strong> Local JSON | 
+          <strong> Data:</strong> {loading ? 'loading...' : data.length > 0 ? `${data.length} items loaded` : 'no data'} | 
+          <strong> Results:</strong> {results.length} items
+          {error && <div><strong>Error:</strong> {error}</div>}
         </Alert>
-      )}
-      
-      {debugMode && (
-        <Alert severity="info" sx={{ mb: 3, maxWidth: '800px', mx: 'auto' }}>
-          Debug mode actief. Data items: {data?.length || 0}
-        </Alert>
-      )}
+      </Box>
 
       {/* Results Section */}
       {loading ? (
-        <Typography sx={{ textAlign: 'center' }}>Activiteiten worden geladen...</Typography>
+        <Box sx={{ textAlign: 'center', py: 4 }}>
+          <CircularProgress size={40} sx={{ mb: 2 }} />
+          <Typography>Activiteiten worden geladen...</Typography>
+        </Box>
       ) : (
         <>
           {debugMode && (
@@ -263,6 +318,19 @@ export default function Home() {
             activities={results} 
             debug={debugMode}
           />
+          
+          {!loading && data.length === 0 && (
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Button 
+                variant="contained"
+                color="primary"
+                onClick={handleRetry}
+                sx={{ mt: 2 }}
+              >
+                Probeer opnieuw te laden
+              </Button>
+            </Box>
+          )}
           
           {debugMode && results.length > 0 && (
             <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1, maxWidth: '800px', mx: 'auto' }}>
