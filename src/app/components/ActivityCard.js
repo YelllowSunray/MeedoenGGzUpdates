@@ -1,10 +1,7 @@
 'use client';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Card, CardContent, Typography, Button } from '@mui/material';
 
 export default function ActivityCard({ activity }) {
   const router = useRouter();
@@ -32,17 +29,20 @@ export default function ActivityCard({ activity }) {
                'Onbekende activiteit';
 
   const handleViewDetails = () => {
-    if (!mounted) return;
+    // Save scroll position
+    sessionStorage.setItem('scrollPosition', window.scrollY.toString());
     
-    // Store the full activity data in sessionStorage
+    // Save activity details
     sessionStorage.setItem('activityDetails', JSON.stringify(activity));
-    // Save current scroll position in history state
-    window.history.replaceState(
-      { ...window.history.state, scrollPosition: window.scrollY },
-      ''
-    );
-    // Navigate to the details page
-    router.push(`/activiteit/${encodeURIComponent(title)}`);
+
+    // Get the activity title for the URL
+    const title = getField(['Activity name', 'Activiteit', 'What specific', 'Title', 'Titel']) || 
+                 getField(['Activity type', 'What', 'Activiteit long']) || 
+                 'unknown';
+    const encodedTitle = encodeURIComponent(title);
+    
+    // Navigate to details page
+    router.push(`/activity/${encodedTitle}`);
   };
 
   if (!mounted) {
@@ -53,7 +53,7 @@ export default function ActivityCard({ activity }) {
     <Card style={{ 
       marginBottom: '10px', 
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)', 
-      height: '300px', // Fixed height
+      height: '350px', // Increased from 300px to 400px
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -79,13 +79,16 @@ export default function ActivityCard({ activity }) {
           marginBottom: '16px'
         }}>
           <Typography color="text.secondary" style={{ margin: '8px 0' }}>
-            <strong>👤 Door wie:</strong> {getField(['organisatie', 'By who', 'Door wie', 'Organizer'])}
+            <strong>👤</strong> {getField(['organisatie', 'By who', 'Door wie', 'Organizer'])}
           </Typography>
           <Typography color="text.secondary" style={{ margin: '8px 0' }}>
-            <strong>📍 Waar:</strong> {getField(['Address', 'Where', 'Waar', 'Location'])}
+            <strong>📍</strong> {getField(['Address', 'Where', 'Waar', 'Location'])}
           </Typography>
           <Typography color="text.secondary" style={{ margin: '8px 0' }}>
-            <strong>📝 Beschrijving:</strong> {getField(['Beschrijving', 'Unnamed: 7', 'Description'])}
+            <strong>🗓️</strong> {getField(['Wanneer? Hoe laat?', 'When', 'Wanneer', 'Date', 'Datum'])}
+          </Typography>
+          <Typography color="text.secondary" style={{ margin: '8px 0' }}>
+            <strong>📝</strong> {getField(['Beschrijving', 'Unnamed: 7', 'Description'])}
           </Typography>
         </div>
         <Button 

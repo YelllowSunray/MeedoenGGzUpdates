@@ -34,29 +34,29 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [networkStatus, setNetworkStatus] = useState(null);
+  const [networkStatus, setNetworkStatus] = useState('loading');
 
   // Set mounted state to track client-side rendering
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Helper to show in the UI if we're online
+  // Helper to show in the UI if we're online - only run on client
   useEffect(() => {
-    const updateNetworkStatus = () => {
-      setNetworkStatus(navigator.onLine ? 'online' : 'offline');
-    };
+    if (typeof window !== 'undefined') {
+      const updateNetworkStatus = () => {
+        setNetworkStatus(navigator.onLine ? 'online' : 'offline');
+      };
 
-    window.addEventListener('online', updateNetworkStatus);
-    window.addEventListener('offline', updateNetworkStatus);
-    
-    // Initial status
-    updateNetworkStatus();
-    
-    return () => {
-      window.removeEventListener('online', updateNetworkStatus);
-      window.removeEventListener('offline', updateNetworkStatus);
-    };
+      updateNetworkStatus(); // Initial check
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
+      
+      return () => {
+        window.removeEventListener('online', updateNetworkStatus);
+        window.removeEventListener('offline', updateNetworkStatus);
+      };
+    }
   }, []);
 
   // Fetch Google Sheets data with retry logic
@@ -65,21 +65,13 @@ export default function Home() {
       setLoading(true);
       setError(null);
       
-      console.log(`Fetching data (attempt ${retryCount + 1})...`);
-      
-      const startTime = performance.now();
-      
       const response = await fetch('/api/sheets', {
-        // Add cache control
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
       });
-      
-      const endTime = performance.now();
-      console.log(`Fetch completed in ${Math.round(endTime - startTime)}ms with status ${response.status}`);
       
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
@@ -90,8 +82,6 @@ export default function Home() {
       if (!Array.isArray(sheetsData)) {
         throw new Error(`Invalid data format: expected array, got ${typeof sheetsData}`);
       }
-      
-      console.log('Data received:', sheetsData.length ? 'Yes' : 'No', 'Number of items:', sheetsData.length);
       
       setData(sheetsData);
       
@@ -119,22 +109,13 @@ export default function Home() {
 
   // Update search results when query, filters, or data changes
   useEffect(() => {
-    if (loading) {
-      return; // Don't update results while loading
-    }
+    if (loading) return;
     
     if (data && data.length > 0) {
       const filteredResults = searchAndFilter(query, filters, data);
       setResults(filteredResults);
-      
-      console.log(`Search results: ${filteredResults.length} found from ${data.length} items`);
-      console.log('Current query:', query ? `"${query}"` : 'None');
-      console.log('Current filters:', Object.entries(filters).filter(([_, v]) => v).length ? filters : 'None');
     } else {
       setResults([]);
-      if (!loading) { // Only log if we're not loading
-        console.log('No data available to search');
-      }
     }
   }, [query, filters, data, loading]);
 
@@ -170,7 +151,7 @@ export default function Home() {
       {/* Search and Filters Section */}
       <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
         <SearchBar onSearch={handleSearch} />
-        <Filters onFilter={handleFilter} />
+        <Filters onFilter={handleFilter} data={data} />
       </Paper>
 
       {/* Results Section */}

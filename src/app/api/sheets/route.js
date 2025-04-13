@@ -3,14 +3,22 @@ import { google } from 'googleapis';
 import fs from 'fs';
 import path from 'path';
 
+// Helper function to check if a row is empty or contains only empty strings
+function isRowEmpty(row) {
+  if (!row) return true;
+  return Object.values(row).every(value => !value || value.trim() === '');
+}
+
 // Fallback data in case Google Sheets fails
 const fallbackData = [
   {
-    'Shiva Categorie': 'Example',
     'What': 'Sample Activity',
     'For Who': 'Everyone',
     'When': '2024-01-01',
-    'Where': 'Sample Location'
+    'Where': 'Sample Location',
+    'How much?': 'Free',
+    'Unnamed: 7': 'Sample Description',
+    'Unnamed: 14': 'sample, test'
   }
 ];
 
@@ -18,6 +26,7 @@ async function readLocalJSON() {
   try {
     const filePath = path.join(process.cwd(), 'public', 'documents', 'data.json');
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    console.log('Local JSON entries:', data.length);
     return data;
   } catch (error) {
     console.error('Error reading local JSON:', error);
@@ -27,49 +36,39 @@ async function readLocalJSON() {
 
 export async function GET() {
   try {
-    // First try Google Sheets
+    // Try Google Sheets first
     if (process.env.GOOGLE_SHEETS_CLIENT_EMAIL && 
         process.env.GOOGLE_SHEETS_PRIVATE_KEY && 
         process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
       try {
-        console.log('Attempting Google Sheets connection...');
-        console.log('Client email:', process.env.GOOGLE_SHEETS_CLIENT_EMAIL);
-        console.log('Spreadsheet ID:', process.env.GOOGLE_SHEETS_SPREADSHEET_ID);
+        console.log('Fetching from Google Sheets...');
         
-        // Format the private key correctly
         const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, '\n');
-        console.log('Private key formatted:', privateKey ? 'Yes' : 'No');
 
-        // Create JWT auth client
         const auth = new google.auth.JWT({
           email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
           key: privateKey,
           scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
         });
 
-        // Test authentication
-        console.log('Testing authentication...');
         await auth.authorize();
-        console.log('Authentication successful');
 
-        // Create Google Sheets client
         const sheets = google.sheets({ 
           version: 'v4', 
           auth,
           timeout: 10000
         });
 
-        // Get spreadsheet data
-        console.log('Fetching spreadsheet data...');
         const response = await sheets.spreadsheets.values.get({
           spreadsheetId: process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
           range: 'Sheet1',
         });
 
         if (response.data.values) {
-          console.log('Data fetched successfully');
-          // Convert to objects
           const headers = response.data.values[0];
+          console.log('Headers from Google Sheets:', headers);
+          console.log('First row of data:', response.data.values[1]);
+          
           const data = response.data.values.slice(1).map(row => {
             const item = {};
             headers.forEach((header, index) => {
@@ -78,44 +77,29 @@ export async function GET() {
             return item;
           });
 
+          console.log('Sample of processed data:', data[0]);
+          console.log('Total Google Sheets entries:', data.length);
           return NextResponse.json(data);
         } else {
-          console.error('No data values in response');
           throw new Error('No data values in response');
         }
       } catch (sheetsError) {
-        console.error('Google Sheets error details:', {
-          message: sheetsError.message,
-          code: sheetsError.code,
-          errors: sheetsError.errors,
-          response: sheetsError.response?.data
-        });
-        // Continue to fallback
+        console.error('Google Sheets error:', sheetsError);
+        // If Google Sheets fails, try local JSON as fallback
+        console.log('Falling back to local JSON...');
+        const localData = await readLocalJSON();
+        if (localData) {
+          return NextResponse.json(localData);
+        }
       }
-    } else {
-      console.error('Missing Google Sheets credentials:', {
-        hasClientEmail: !!process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-        hasPrivateKey: !!process.env.GOOGLE_SHEETS_PRIVATE_KEY,
-        hasSpreadsheetId: !!process.env.GOOGLE_SHEETS_SPREADSHEET_ID
-      });
     }
 
-    // If Google Sheets fails or credentials are missing, try local JSON
-    console.log('Falling back to local JSON...');
-    const localData = await readLocalJSON();
-    if (localData) {
-      console.log('Using local JSON data');
-      return NextResponse.json(localData);
-    }
-
+    // If both Google Sheets and local JSON fail, return empty array
     console.log('Both Google Sheets and local JSON failed, returning empty array');
     return NextResponse.json([]);
   } catch (error) {
-    console.error('Error in sheets route:', error);
-    return NextResponse.json({ 
-      error: 'Error fetching data',
-      details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    }, { status: 500 });
+    console.error('Error in API route:', error);
+    return NextResponse.json({ error: 'Error fetching data' }, { status: 500 });
   }
 } 
+

@@ -1,5 +1,5 @@
 import { CssBaseline } from '@mui/material';
-import Navbar from "./components/navbar/navbar";
+import NavbarWrapper from './components/navbar/NavbarWrapper';
 import { Inter, Cabin } from 'next/font/google';
 import './globals.css';
 
@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
     <html lang="nl" className={cabin.variable}>
       <body className={cabin.className}>
         <CssBaseline />
-        <Navbar />
+        <NavbarWrapper />
         {children}
       </body>
     </html>

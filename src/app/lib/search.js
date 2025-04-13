@@ -2,205 +2,196 @@ import Fuse from 'fuse.js';
 
 const fuseOptions = {
   keys: [
-    'Activity type',
-    'Activity name',
-    'Doelgroep',
-    'Domein / Intentie',
-    'Beschrijving',
-    'Tags',
-    'Address',
-    'organisatie'
+    { name: 'Shiva Categorie', weight: 0.7 },
+    { name: 'Doelgroep', weight: 0.6 },
+    { name: 'Domein / Intentie', weight: 0.7 },
+    { name: 'Activity type', weight: 0.8 },
+    { name: 'Activity name', weight: 0.9 },
+    { name: 'Activiteit long', weight: 0.9 },
+    { name: 'Beschrijving', weight: 0.8 },
+    { name: 'Address', weight: 0.5 },
+    { name: 'organisatie', weight: 0.6 },
+    { name: 'website', weight: 0.4 },
+    { name: 'Contact', weight: 0.4 },
+    { name: 'Wanneer? Hoe laat?', weight: 0.5 }
   ],
-  threshold: 0.4, // Adjust for fuzziness (0 = exact match, 1 = very loose)
+  threshold: 0.2,
   includeScore: true,
   ignoreLocation: true,
-  minMatchCharLength: 2
+  minMatchCharLength: 2,
+  useExtendedSearch: true,
+  shouldSort: true,
+  distance: 100,
+  findAllMatches: true
 };
 
 export function searchActivities(query, data) {
   if (!query || !data || !Array.isArray(data)) return data || [];
   
+  const words = query.toLowerCase().split(/\s+/);
   const fuse = new Fuse(data, fuseOptions);
-  const searchResults = fuse.search(query);
-  return searchResults.map(result => result.item);
+  
+  const allResults = new Set();
+  words.forEach(word => {
+    const results = fuse.search(word);
+    results.forEach(result => {
+      allResults.add(result.item);
+      console.log('Match found:', {
+        item: result.item['Activity name'] || result.item['Activiteit long'],
+        score: result.score,
+        matchedFields: Object.keys(result.item).filter(key => 
+          result.item[key] && 
+          result.item[key].toString().toLowerCase().includes(word)
+        )
+      });
+    });
+  });
+  
+  console.log('Search results for query:', query, Array.from(allResults));
+  return Array.from(allResults);
 }
 
 export function filterActivities(filters, data) {
-  if (!data || !Array.isArray(data)) return [];
+  if (!data || !Array.isArray(data)) {
+    console.log('No data provided to filterActivities');
+    return [];
+  }
   
-  return data.filter(item => {
+  console.log('Filtering with:', filters);
+  console.log('Total items to filter:', data.length);
+  
+  // Debug: Log the first few items' structure
+  if (data.length > 0) {
+    console.log('First 3 items structure:', data.slice(0, 3));
+    console.log('Available fields in first item:', Object.keys(data[0]));
+  }
+  
+  const filteredData = data.filter(item => {
     if (!item) return false;
     
+    // Debug: Log the category value when filtering
+    if (filters.category) {
+      console.log('Looking for category:', filters.category);
+      console.log('Item category value:', item['Shiva Categorie']);
+      console.log('Item:', item);
+    }
+    
     // Helper function to check if any field contains the value
-    const fieldContains = (possibleFields, value) => {
+    const fieldContains = (field, value) => {
       if (!value) return true; // No filter applied
-      
-      for (const field of possibleFields) {
-        if (item[field] && item[field].toLowerCase().includes(value.toLowerCase())) {
-          return true;
-        }
+      if (!item[field]) {
+        console.log(`Field ${field} not found in item`);
+        return false;
       }
-      return false;
+      const contains = item[field].toLowerCase().includes(value.toLowerCase());
+      console.log(`Checking ${field}: "${item[field]}" contains "${value}"? ${contains}`);
+      return contains;
     };
     
     // Helper function for exact match
-    const fieldEquals = (possibleFields, value) => {
+    const fieldEquals = (field, value) => {
       if (!value) return true; // No filter applied
-      
-      for (const field of possibleFields) {
-        if (item[field] && item[field].toLowerCase() === value.toLowerCase()) {
-          return true;
-        }
+      if (!item[field]) {
+        console.log(`Field ${field} not found in item`);
+        return false;
       }
-      return false;
+      const equals = item[field].toLowerCase() === value.toLowerCase();
+      console.log(`Checking ${field}: "${item[field]}" equals "${value}"? ${equals}`);
+      return equals;
     };
 
     // Helper function to check activity type
     const checkActivityType = (item, type) => {
       if (!type) return true; // No filter applied
       
-      const activityTypeFields = ['Activity type', 'What', 'Wat', 'Activiteit'];
-      const itemType = item[activityTypeFields.find(field => item[field]) || ''];
-      const tags = item['Tags'] || '';
+      const activityName = item['Activity name'] || item['Activiteit'] || item['What specific'] || item['What'] || '';
+      const tags = item['Tags'] || item['Categorieën'] || item['Unnamed: 14'] || '';
+      const description = item['Beschrijving'] || item['Unnamed: 7'] || item['Description'] || '';
       
-      if (!itemType && !tags) return false;
+      if (!activityName && !tags && !description) return false;
       
       // Map activity types to their corresponding filter values
       const typeMappings = {
-        'sport': ['sport', 'voetbal', 'tennis', 'zwemmen', 'hardlopen', 'koersbal', 'darten'],
-        'ontmoeting': ['ontmoeting', 'ontmoeten', 'sociaal', 'huiskamer', 'koffie', 'thee', 'maatje', 'sociaal isolement'],
-        'spelletjes': ['spelletjes', 'kaart', 'sjoelen', 'koersbal', 'darten', 'spel'],
-        'wandelen': ['wandelen', 'wandeling', 'lopen'],
-        'eten': ['eten', 'koken', 'bakken', 'culinair', 'maaltijd', 'lunch'],
-        'creatief': ['creatief', 'schilderen', 'tekenen', 'knutselen', 'handwerken']
+        'ontmoeting': ['ontmoeting', 'ontmoeten', 'sociaal', 'huiskamer', 'koffie', 'thee', 'maatje', 'sociaal isolement', 'gezelschap', 'samen'],
+        'spelletjes': ['spelletjes', 'kaart', 'sjoelen', 'koersbal', 'darten', 'spel', 'bordspel', 'kaarten'],
+        'wandelen': ['wandelen', 'wandeling', 'lopen', 'wandelt', 'wandelingen'],
+        'eten': ['eten', 'koken', 'bakken', 'culinair', 'maaltijd', 'lunch', 'diner', 'koffie', 'thee'],
+        'creatief': ['creatief', 'schilderen', 'tekenen', 'knutselen', 'handwerken', 'maken', 'creëren']
       };
       
       const matchingTypes = typeMappings[type] || [];
       
-      // Check both the activity type and tags
-      const itemTypeLower = itemType ? itemType.toLowerCase() : '';
+      // Check activity name, tags, and description
+      const activityNameLower = activityName.toLowerCase();
       const tagsLower = tags.toLowerCase();
+      const descriptionLower = description.toLowerCase();
       
       return matchingTypes.some(t => 
-        itemTypeLower.includes(t) || 
-        tagsLower.includes(t)
+        activityNameLower.includes(t) || 
+        tagsLower.includes(t) ||
+        descriptionLower.includes(t)
       );
     };
     
     return (
-      fieldEquals(['Shiva Categorie', 'Category', 'Categorie', 'Unnamed: 1'], filters.category) &&
-      fieldContains(['Doelgroep', 'For Who', 'Voor wie'], filters.forWho) &&
-      fieldEquals(['Kosten', 'How much?'], filters.cost) &&
-      fieldContains(['Address', 'Where', 'Waar'], filters.location) &&
+      fieldContains('Doelgroep', filters.forWho) &&
+      fieldContains('Kosten', filters.cost) &&
+      fieldEquals('Shiva Categorie', filters.category) &&
+      fieldContains('Where', filters.location) &&
       checkActivityType(item, filters.activityType)
     );
   });
+
+  return filteredData;
 }
 
 export function searchAndFilter(query, filters, data) {
   if (!data || !Array.isArray(data)) {
-    console.warn('Invalid data provided to searchAndFilter');
+    console.log('No data provided to searchAndFilter');
     return [];
   }
 
-  return data.filter(item => {
-    // Check activity type first
-    if (filters.activityType && !checkActivityType(item, filters.activityType)) {
-      return false;
-    }
+  console.log('Searching with query:', query);
+  console.log('Filtering with:', filters);
+  console.log('Total items to search:', data.length);
 
-    // Check time filter
-    if (filters.time) {
-      const itemTime = item['Tijd'] || item['Time'] || '';
-      if (!itemTime.toLowerCase().includes(filters.time.toLowerCase())) {
-        return false;
-      }
-    }
+  // First apply filters
+  let filteredData = filterActivities(filters, data);
+  console.log('Items after filtering:', filteredData.length);
 
-    // Check category filter
-    if (filters.category) {
-      const itemCategory = item['Shiva Categorie'] || item['Category'] || item['Categorie'] || item['Unnamed: 1'] || '';
-      if (!itemCategory.toLowerCase().includes(filters.category.toLowerCase())) {
-        return false;
-      }
-    }
+  // Then apply search query if present
+  if (query) {
+    filteredData = searchActivities(query, filteredData);
+    console.log('Items after search:', filteredData.length);
+  }
 
-    // Check search query
-    if (query) {
-      const searchFields = [
-        item['What'] || '',
-        item['Where'] || '',
-        item['When'] || '',
-        item['How much?'] || '',
-        item['For Who'] || '',
-        item['Shiva Categorie'] || '',
-        item['Category'] || '',
-        item['Categorie'] || '',
-        item['Unnamed: 1'] || '',
-        item['Tijd'] || '',
-        item['Time'] || ''
-      ];
-      
-      const searchText = searchFields.join(' ').toLowerCase();
-      if (!searchText.includes(query.toLowerCase())) {
-        return false;
-      }
-    }
-
-    return true;
-  });
+  return filteredData;
 }
 
-// Function to analyze activity type frequency
+// Function to analyze activity types
 export function analyzeActivityTypes(data) {
   if (!data || !Array.isArray(data)) return [];
   
   const activityTypeCounts = {};
   
   data.forEach(item => {
-    const activityTypeFields = ['Activity type', 'What', 'Wat', 'Activiteit'];
-    const itemType = item[activityTypeFields.find(field => item[field]) || ''];
+    const activityName = item['What specific'] || item['What'];
+    const tags = item['Unnamed: 14'];
     
-    if (itemType) {
-      const normalizedType = itemType.toLowerCase().trim();
+    if (activityName) {
+      const normalizedType = activityName.toLowerCase().trim();
       activityTypeCounts[normalizedType] = (activityTypeCounts[normalizedType] || 0) + 1;
+    }
+    
+    if (tags) {
+      const tagTypes = tags.split(',').map(t => t.toLowerCase().trim());
+      tagTypes.forEach(type => {
+        activityTypeCounts[type] = (activityTypeCounts[type] || 0) + 1;
+      });
     }
   });
   
-  // Convert to array and sort by frequency
   return Object.entries(activityTypeCounts)
     .sort((a, b) => b[1] - a[1])
     .map(([type, count]) => ({ type, count }));
 }
-
-// Updated type mappings based on most frequent activity types
-const typeMappings = {
-  'sport': ['sport', 'voetbal', 'tennis', 'zwemmen', 'hardlopen', 'koersbal', 'darten'],
-  'ontmoeting': ['ontmoeting', 'ontmoeten', 'sociaal', 'huiskamer', 'koffie', 'thee', 'maatje', 'sociaal isolement'],
-  'spelletjes': ['spelletjes', 'kaart', 'sjoelen', 'koersbal', 'darten', 'spel'],
-  'wandelen': ['wandelen', 'wandeling', 'lopen'],
-  'eten': ['eten', 'koken', 'bakken', 'culinair', 'maaltijd', 'lunch'],
-  'creatief': ['creatief', 'schilderen', 'tekenen', 'knutselen', 'handwerken']
-};
-
-// Helper function to check activity type
-const checkActivityType = (item, type) => {
-  if (!type) return true; // No filter applied
-  
-  const activityTypeFields = ['Activity type', 'What', 'Wat', 'Activiteit'];
-  const itemType = item[activityTypeFields.find(field => item[field]) || ''];
-  const tags = item['Tags'] || '';
-  
-  if (!itemType && !tags) return false;
-  
-  const matchingTypes = typeMappings[type] || [];
-  
-  // Check both the activity type and tags
-  const itemTypeLower = itemType ? itemType.toLowerCase() : '';
-  const tagsLower = tags.toLowerCase();
-  
-  return matchingTypes.some(t => 
-    itemTypeLower.includes(t) || 
-    tagsLower.includes(t)
-  );
-};
