@@ -10,7 +10,6 @@ export default function SearchBar({ onSearch }) {
       sx={{ 
         display: 'flex', 
         justifyContent: 'center',
-        mb: 3,
         width: '100%'
       }}
     >
@@ -20,7 +19,6 @@ export default function SearchBar({ onSearch }) {
         placeholder="Zoek activiteiten..."
         onChange={(e) => onSearch(e.target.value)}
         sx={{
-          maxWidth: '600px',
           '& .MuiOutlinedInput-root': {
             borderRadius: '30px',
             backgroundColor: 'background.paper',

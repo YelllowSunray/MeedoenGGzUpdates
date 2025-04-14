@@ -63,6 +63,10 @@ export default function Home() {
     setSearchQuery(query);
   };
 
+  const handleDomainFilterChange = (newFilters) => {
+    setFilters(prev => ({ ...prev, domain: newFilters.domain }));
+  };
+
   if (!mounted) {
     return null;
   }
@@ -89,10 +93,19 @@ export default function Home() {
     <Box sx={{ p: 3, maxWidth: '1200px', margin: '0 auto' }}>
       <Typography variant="h4" component="h1" gutterBottom>
       </Typography>
-      <SearchBar onSearch={handleSearch} />
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        mb: 3,
+        width: '100%'
+      }}>
+        <Box sx={{ width: '400px' }}>
+          <SearchBar onSearch={handleSearch} />
+        </Box>
+      </Box>
       <Filters 
         filters={filters}
-        onFilterChange={setFilters}
+        onFilterChange={handleDomainFilterChange}
       />
       <ResultsList 
         activities={activities} 

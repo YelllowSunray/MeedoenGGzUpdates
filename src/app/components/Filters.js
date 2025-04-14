@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Tooltip, Grid, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, IconButton, Tooltip, Grid, useTheme, useMediaQuery, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import {
   Groups as SocialIcon,
   DirectionsWalk as MovementIcon,
@@ -44,15 +44,31 @@ const domainMappings = [
   }
 ];
 
+const documentCategories = [
+  'Sociale- en welzijnsactiviteiten',
+  'Dagbesteding & Re-integratie',
+  'Begeleiding & Coaching',
+  'Crisisopvang & Maatschappelijke opvang',
+  'Wonen & Beschermd wonen',
+  'Overig'
+];
+
 export default function Filters({ onFilterChange }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [selectedDomain, setSelectedDomain] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const handleDomainClick = (domain) => {
     const newDomain = selectedDomain === domain ? null : domain;
     setSelectedDomain(newDomain);
-    onFilterChange({ domain: newDomain });
+    onFilterChange({ domain: newDomain, category: selectedCategory });
+  };
+
+  const handleCategoryChange = (event) => {
+    const newCategory = event.target.value;
+    setSelectedCategory(newCategory);
+    onFilterChange({ domain: selectedDomain, category: newCategory });
   };
 
   return (
