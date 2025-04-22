@@ -2,11 +2,14 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { EventAnalytics } from '@/app/models/Analytics';
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     // Get query parameters (if any)
     const url = new URL(request.url);
-    const limit = parseInt(url.searchParams.get('limit') || '500', 10);
+    const limit = parseInt(url.searchParams.get('limit') || '100', 10);
     const skip = parseInt(url.searchParams.get('skip') || '0', 10);
     
     // Connect to MongoDB

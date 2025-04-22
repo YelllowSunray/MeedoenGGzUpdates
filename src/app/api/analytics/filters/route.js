@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { EventAnalytics } from '@/app/models/Analytics';
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     // Get query parameters (if any)
