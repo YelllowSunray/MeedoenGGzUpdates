@@ -4,6 +4,9 @@ import path from 'path';
 import connectDB from '@/app/lib/db';
 import { EventAnalytics, Session } from '@/app/models/Analytics';
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 // Helper function to get all analytics files
 const getAnalyticsFiles = () => {
   const analyticsDir = path.join(process.cwd(), 'public', 'analytics');
