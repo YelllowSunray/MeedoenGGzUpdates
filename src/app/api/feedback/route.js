@@ -22,6 +22,13 @@ export async function POST(request) {
       );
     }
 
+    // Log environment variables (without sensitive data)
+    console.log('Email configuration:', {
+      user: process.env.EMAIL_USER ? 'Set' : 'Not set',
+      pass: process.env.EMAIL_PASS ? 'Set' : 'Not set',
+      to: process.env.EMAIL_TO ? 'Set' : 'Not set'
+    });
+
     // Email content
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -38,16 +45,28 @@ export async function POST(request) {
     };
 
     // Send email
-    await transporter.sendMail(mailOptions);
-
-    return NextResponse.json(
-      { message: 'Email succesvol verzonden' },
-      { status: 200 }
-    );
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully:', info);
+      return NextResponse.json(
+        { message: 'Email succesvol verzonden' },
+        { status: 200 }
+      );
+    } catch (emailError) {
+      console.error('Detailed email error:', {
+        message: emailError.message,
+        code: emailError.code,
+        command: emailError.command
+      });
+      throw emailError;
+    }
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email:', {
+      message: error.message,
+      stack: error.stack
+    });
     return NextResponse.json(
-      { message: 'Er is een fout opgetreden bij het verzenden van de email' },
+      { message: 'Er is een fout opgetreden bij het verzenden van de email. Probeer het later opnieuw.' },
       { status: 500 }
     );
   }

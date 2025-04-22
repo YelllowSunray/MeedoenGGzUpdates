@@ -133,9 +133,6 @@ export default function Organisaties() {
 
   return (
     <Box sx={{ p: 3, maxWidth: '1200px', margin: '0 auto' }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Organisaties
-      </Typography>
       
       <Grid 
         container 

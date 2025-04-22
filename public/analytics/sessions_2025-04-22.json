@@ -1,0 +1,242 @@
+[
+  {
+    "sessionId": "session_evduwpegnzw",
+    "startTime": "2025-04-22T12:56:47.213Z",
+    "endTime": "2025-04-22T12:56:47.213Z",
+    "pageViews": [
+      {
+        "page": "/",
+        "duration": 0,
+        "timestamp": "2025-04-22T12:55:54.040Z"
+      },
+      {
+        "page": "/",
+        "duration": 53173,
+        "timestamp": "2025-04-22T12:56:47.213Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "941x655"
+  },
+  {
+    "sessionId": "session_tuek0cizvva",
+    "startTime": "2025-04-22T12:57:06.473Z",
+    "endTime": "2025-04-22T12:57:06.473Z",
+    "pageViews": [
+      {
+        "page": "/",
+        "duration": 0,
+        "timestamp": "2025-04-22T12:56:48.110Z"
+      },
+      {
+        "page": "/",
+        "duration": 18363,
+        "timestamp": "2025-04-22T12:57:06.473Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "941x655"
+  },
+  {
+    "sessionId": "session_sthlaqf6owi",
+    "startTime": "2025-04-22T12:57:06.472Z",
+    "endTime": "2025-04-22T12:57:06.473Z",
+    "pageViews": [
+      {
+        "page": "/",
+        "duration": 0,
+        "timestamp": "2025-04-22T12:56:48.104Z"
+      },
+      {
+        "page": "/",
+        "duration": 18368,
+        "timestamp": "2025-04-22T12:57:06.472Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "941x655"
+  },
+  {
+    "sessionId": "session_af5vg8xeqc",
+    "startTime": "2025-04-22T12:57:06.474Z",
+    "endTime": "2025-04-22T12:57:06.474Z",
+    "pageViews": [
+      {
+        "page": "/",
+        "duration": 0,
+        "timestamp": "2025-04-22T12:57:06.192Z"
+      },
+      {
+        "page": "/",
+        "duration": 282,
+        "timestamp": "2025-04-22T12:57:06.474Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "941x655"
+  },
+  {
+    "sessionId": "session_dophvrijd",
+    "startTime": "2025-04-22T13:00:07.023Z",
+    "endTime": "2025-04-22T13:00:07.024Z",
+    "pageViews": [
+      {
+        "page": "/analytics",
+        "duration": 1,
+        "timestamp": "2025-04-22T12:59:55.452Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 6618,
+        "timestamp": "2025-04-22T13:00:02.070Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 4953,
+        "timestamp": "2025-04-22T13:00:07.023Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "942x655"
+  },
+  {
+    "sessionId": "session_7kayzhp5w5o",
+    "startTime": "2025-04-22T13:00:19.736Z",
+    "endTime": "2025-04-22T13:00:19.736Z",
+    "pageViews": [
+      {
+        "page": "/analytics",
+        "duration": 0,
+        "timestamp": "2025-04-22T13:00:07.853Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 7714,
+        "timestamp": "2025-04-22T13:00:15.567Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 4169,
+        "timestamp": "2025-04-22T13:00:19.736Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "942x655"
+  },
+  {
+    "sessionId": "session_oz9cnepkjo",
+    "startTime": "2025-04-22T13:03:23.295Z",
+    "endTime": "2025-04-22T13:03:23.296Z",
+    "pageViews": [
+      {
+        "page": "/",
+        "duration": 0,
+        "timestamp": "2025-04-22T12:59:45.662Z"
+      },
+      {
+        "page": "/",
+        "duration": 6765,
+        "timestamp": "2025-04-22T12:59:52.427Z"
+      },
+      {
+        "page": "/",
+        "duration": 12229,
+        "timestamp": "2025-04-22T13:00:04.656Z"
+      },
+      {
+        "page": "/",
+        "duration": 13166,
+        "timestamp": "2025-04-22T13:00:17.822Z"
+      },
+      {
+        "page": "/",
+        "duration": 135049,
+        "timestamp": "2025-04-22T13:02:32.871Z"
+      },
+      {
+        "page": "/",
+        "duration": 19493,
+        "timestamp": "2025-04-22T13:02:52.364Z"
+      },
+      {
+        "page": "/",
+        "duration": 30931,
+        "timestamp": "2025-04-22T13:03:23.295Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "942x655"
+  },
+  {
+    "sessionId": "session_c4sqoax2kit",
+    "startTime": "2025-04-22T13:03:23.362Z",
+    "endTime": "2025-04-22T13:03:23.362Z",
+    "pageViews": [
+      {
+        "page": "/analytics",
+        "duration": 0,
+        "timestamp": "2025-04-22T13:00:20.320Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 6480,
+        "timestamp": "2025-04-22T13:00:26.800Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 143039,
+        "timestamp": "2025-04-22T13:02:49.839Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 33523,
+        "timestamp": "2025-04-22T13:03:23.362Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "942x655"
+  },
+  {
+    "sessionId": "session_c4sqoax2kit",
+    "startTime": "2025-04-22T13:03:23.460Z",
+    "endTime": "2025-04-22T13:03:23.460Z",
+    "pageViews": [
+      {
+        "page": "/analytics",
+        "duration": 0,
+        "timestamp": "2025-04-22T13:00:20.320Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 6480,
+        "timestamp": "2025-04-22T13:00:26.800Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 143039,
+        "timestamp": "2025-04-22T13:02:49.839Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 33523,
+        "timestamp": "2025-04-22T13:03:23.362Z"
+      },
+      {
+        "page": "/analytics",
+        "duration": 98,
+        "timestamp": "2025-04-22T13:03:23.460Z"
+      }
+    ],
+    "clicks": [],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+    "screenSize": "942x655"
+  }
+]
