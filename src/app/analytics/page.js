@@ -52,8 +52,8 @@ export default function AnalyticsDashboard() {
     const fetchData = async () => {
       try {
         const [analyticsRes, sessionsRes] = await Promise.all([
-          fetch('/api/analytics/dashboard'),
-          fetch('/api/analytics/sessions')
+          fetch('/api/analytics/dashboard?limit=1000'),
+          fetch('/api/analytics/sessions?limit=100')
         ]);
 
         if (!analyticsRes.ok || !sessionsRes.ok) {
@@ -65,8 +65,8 @@ export default function AnalyticsDashboard() {
           sessionsRes.json()
         ]);
 
-        setAnalytics(analyticsData);
-        setSessions(sessionsData);
+        setAnalytics(analyticsData.events || []);
+        setSessions(sessionsData.sessions || []);
       } catch (err) {
         setError(err.message);
       } finally {
