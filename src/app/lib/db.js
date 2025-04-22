@@ -3,7 +3,8 @@ import { MongoClient } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
+// Only throw an error if we're not in a build context
+if (!MONGODB_URI && typeof window !== 'undefined') {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
@@ -14,6 +15,19 @@ if (!cached) {
 }
 
 async function connectDB() {
+  // If we're in a build context and don't have a MongoDB URI, return a mock connection
+  if (!MONGODB_URI) {
+    console.log('No MongoDB URI found, using mock connection for build');
+    return {
+      collection: () => ({
+        find: () => ({ toArray: async () => [] }),
+        findOne: async () => null,
+        insertOne: async () => ({ insertedId: 'mock-id' }),
+        countDocuments: async () => 0
+      })
+    };
+  }
+
   if (cached.conn) {
     return cached.conn;
   }

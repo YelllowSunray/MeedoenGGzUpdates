@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/app/lib/db';
 import { EventAnalytics } from '@/app/models/Analytics';
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const { action, data } = await request.json();
@@ -15,7 +18,7 @@ export async function POST(request) {
 
     // Connect to MongoDB
     console.log('Connecting to MongoDB...');
-    await connectDB();
+    const db = await connectDB();
     console.log('Connected to MongoDB successfully');
 
     // Create analytics entry based on action type
