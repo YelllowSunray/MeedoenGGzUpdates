@@ -53,22 +53,20 @@ const documentCategories = [
   'Overig'
 ];
 
-export default function Filters({ onFilterChange }) {
+export default function Filters({ filters, onFilterChange }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [selectedDomain, setSelectedDomain] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedDomain, setSelectedDomain] = useState(filters.domain);
+
+  // Update local state when filters prop changes
+  useEffect(() => {
+    setSelectedDomain(filters.domain);
+  }, [filters.domain]);
 
   const handleDomainClick = (domain) => {
     const newDomain = selectedDomain === domain ? null : domain;
     setSelectedDomain(newDomain);
-    onFilterChange({ domain: newDomain, category: selectedCategory });
-  };
-
-  const handleCategoryChange = (event) => {
-    const newCategory = event.target.value;
-    setSelectedCategory(newCategory);
-    onFilterChange({ domain: selectedDomain, category: newCategory });
+    onFilterChange({ domain: newDomain });
   };
 
   return (

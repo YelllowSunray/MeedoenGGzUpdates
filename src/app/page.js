@@ -95,6 +95,11 @@ export default function Home() {
     setSearchTimeout(timeout);
   };
 
+  const handleSearchModeChange = (mode) => {
+    setSearchAll(mode);
+    setSearchQuery(''); // Clear search when changing modes
+  };
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -108,6 +113,12 @@ export default function Home() {
     setFilters(prev => ({ ...prev, domain: newFilters.domain }));
     // Track filter application
     trackEvent(AnalyticsActions.FILTER_APPLY, { filters: newFilters });
+  };
+
+  const handleClearCategory = () => {
+    setFilters(prev => ({ ...prev, domain: null }));
+    // Track category clear
+    trackEvent(AnalyticsActions.CATEGORY_CLEAR);
   };
 
   const handleCategoryClick = (category) => {
@@ -148,7 +159,11 @@ export default function Home() {
         width: '100%'
       }}>
         <Box sx={{ width: '400px' }}>
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar 
+            onSearch={handleSearch} 
+            selectedCategory={filters.domain} 
+            onClearCategory={handleClearCategory}
+          />
         </Box>
       </Box>
       <Filters 

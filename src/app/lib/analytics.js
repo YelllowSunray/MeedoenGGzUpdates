@@ -32,5 +32,6 @@ export const AnalyticsActions = {
   ACTIVITY_VIEW: 'activity_view',
   FILTER_APPLY: 'filter_apply',
   PAGE_VIEW: 'page_view',
-  FEEDBACK_SUBMIT: 'feedback_submit'
+  FEEDBACK_SUBMIT: 'feedback_submit',
+  CATEGORY_CLEAR: 'category_clear'
 }; 
