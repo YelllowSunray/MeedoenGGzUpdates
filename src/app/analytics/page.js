@@ -51,13 +51,20 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching analytics data...');
         const [analyticsRes, sessionsRes] = await Promise.all([
           fetch('/api/analytics/dashboard?limit=1000'),
           fetch('/api/analytics/sessions?limit=100')
         ]);
 
-        if (!analyticsRes.ok || !sessionsRes.ok) {
-          throw new Error('Failed to fetch data');
+        if (!analyticsRes.ok) {
+          const errorData = await analyticsRes.json();
+          throw new Error(`Analytics fetch failed: ${errorData.error || analyticsRes.statusText}`);
+        }
+
+        if (!sessionsRes.ok) {
+          const errorData = await sessionsRes.json();
+          throw new Error(`Sessions fetch failed: ${errorData.error || sessionsRes.statusText}`);
         }
 
         const [analyticsData, sessionsData] = await Promise.all([
@@ -65,9 +72,13 @@ export default function AnalyticsDashboard() {
           sessionsRes.json()
         ]);
 
+        console.log('Analytics data received:', analyticsData);
+        console.log('Sessions data received:', sessionsData);
+
         setAnalytics(analyticsData.events || []);
         setSessions(sessionsData.sessions || []);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError(err.message);
       } finally {
         setLoading(false);

@@ -14,7 +14,7 @@ export async function GET(request) {
     
     // Connect to MongoDB
     console.log(`Connecting to MongoDB for analytics dashboard... (limit: ${limit}, skip: ${skip})`);
-    await connectDB();
+    const db = await connectDB();
     console.log('Connected to MongoDB successfully');
     
     // Fetch analytics events with pagination
@@ -41,7 +41,11 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error fetching analytics from MongoDB:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch analytics', details: error.message },
+      { 
+        error: 'Failed to fetch analytics', 
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
